@@ -1,0 +1,8 @@
+[clickhouse_yandex]
+clickhouse.vm ansible_host=51.250.85.130
+
+[vector_yandex]
+vector.vm ansible_host=51.250.85.75
+
+[lighthouse_yandex]
+lighthouse.vm ansible_host=51.250.85.92

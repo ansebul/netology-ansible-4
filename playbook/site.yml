@@ -1,0 +1,13 @@
+---
+- hosts: clickhouse_yandex
+  vars:
+    clickhouse_dbs_custom:
+      - { name: {{ clickhouse_database }}, state: present }
+  roles:
+  - ansible-clickhouse
+- hosts: vector_yandex
+  roles:
+  - vector-role
+- hosts: lighthouse_yandex
+  roles:
+  - lighthouse-role

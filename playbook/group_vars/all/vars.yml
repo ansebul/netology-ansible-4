@@ -1,0 +1,3 @@
+---
+clickhouse_database: 'application'
+clickhouse_table: 'logs'
