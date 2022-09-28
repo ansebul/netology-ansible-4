@@ -2,12 +2,49 @@
 - hosts: clickhouse_yandex
   vars:
     clickhouse_dbs_custom:
-      - { name: {{ clickhouse_database }}, state: present }
+      - { name: "{{ clickhouse_database }}", state: present }
+    clickhouse_listen_host:
+      - "0.0.0.0"
   roles:
   - ansible-clickhouse
 - hosts: vector_yandex
   roles:
   - vector-role
 - hosts: lighthouse_yandex
+  - name: Install dependencies for lighthouse
+    apt:
+      package={{ item }}
+      state=present
+      update_cache=yes
+    with_items:
+      - nginx-full
+      - git
+  - name: Remove default nginx virtualhost
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - /etc/nginx/sites-enabled/default
+      - /etc/nginx/sites-available/default
+      - /etc/nginx/snippets/snakeoil.conf
+  - name: Upload Lighthouse virtualhost configs
+    copy:
+      src: files/lighthouse.conf
+      dest: /etc/nginx/sites-available/lighthouse.conf
+      mode: 0664
+  - name: Turn on Lighthouse virtualhost
+    file:
+      src: /etc/nginx/sites-available/lighthouse.conf
+      dest: /etc/nginx/sites-enabled/lighthouse.conf
+      state: link
+  - name: "Create root directory for Lighthouse"
+    file:
+      path: "/home/web/lighthouse"
+      mode: 0755
+      state: directory
   roles:
   - lighthouse-role
+  - name: Nginx restart
+    service:
+      name: nginx
+      state: restarted
